@@ -1,0 +1,137 @@
+******************************
+**                          **
+** COP-SLAM                 **
+**                          **
+******************************
+
+Author:       Gijs Dubbelman (gijsdubbelman@gmail.com)
+Date:         August-8-2012
+Requirements: Linux with gcc and cmake
+License:      Code - GPL version 3. For other licensing options contact Brett Browning, brettb@cs.cmu.edu
+              Data - Pittsburgh pose-chain datasets: GPL version 3 license
+                   - KITTI pose-chain datasets: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 license, see http://www.cvlibs.net/datasets/kitti/
+                   - New College pose-chain dataset: see http://www.robots.ox.ac.uk/NewCollegeData/
+                   - The Hague pose-chain dataset: GPL version 3 license
+      
+
+When using COP-SLAM for your research, please consider citing the following paper:
+
+G. Dubbelman, B. Browning, "Closed-form Online Pose-chain SLAM", 
+IEEE International Conference on Robotics and Automation, Karlsruhe, Germany, May 6-10, 2012.
+
+
+******************************
+**                          **
+** Installation and running **
+**                          **
+******************************
+
+Assuming you have unpacked or checked out COP-SLAM in the directory <dir>, then to
+
+
+- build and install, do:
+
+$ cd <dir>/build
+$ cmake ../
+$ make install
+
+This will build and install everything in the directory: <dir>/bin
+(so no super user privileges required)
+
+
+- run COP-SLAM demo on all 7 datasets, do:
+
+$ cd <dir>/bin
+$ ./run_demo.sh
+
+
+- visualize the results of COP-SLAM for all 7 datasets, do:
+
+1) Use octave (or matlab) and do:
+
+$ octave
+>> cd <dir>/bin
+>> showG2OFiles
+
+2) Or use g2o_viewer of the g2o package. See the g2o project on openslam.org, for more details.
+
+
+
+******************************
+**                          **
+** File format & usage      **
+**                          **
+******************************
+
+The COP-SLAM demo program simply takes two arguments, e.g.
+
+$ ./copslam <input>.g2o <output>.g2o
+
+For examples, see the run_demo.sh script (in <dir>/bin).
+
+The used file format is provided below and is based on that of g2o.
+It consists of the vertices and edges of a pose-chain / pose-graph.  
+For the SE(3) solution space they are specified, using the
+quaternion rotation representation, with:
+
+VERTEX_SE3:QUAT [ID] [Tx] [Ty] [Tz] [Qx] [Qy] [Qz] [Qw]
+
+EDGE_SE3:QUAT [ID START] [ID END] [Tx] [Ty] [Tz] [Qx] [Qy] [Qz] [Qw] [IM 1,1]..[IM 1,6] [IM 2,2]..[IM 2,6] [IM 3,3]..[IM 3,6] .. [IM 6,6]
+
+Where IM are the 21 top triangular elements of the 6X6 information matrix, 
+i.e. inverse if covariance matrix, representing the uncertainty of an edge.
+
+For the SIM(3) solution space they are specified with:
+
+VERTEX_RST3:QUAT [ID] [Tx] [Ty] [Tz] [Qx] [Qy] [Qz] [Qw] [S]
+
+EDGE_RST3:QUAT [ID START] [ID END] [Tx] [Ty] [Tz] [Qx] [Qy] [Qz] [Qw] [S] [IM 1,1]..[IM 1,6] [IM 2,2]..[IM 2,6] [IM 3,3]..[IM 3,6] .. [IM 6,6]
+
+Where IM are the 21 top triangular elements of the 6X6 information matrix, 
+where the uncertainty in scale is not modeled, i.e. assumed to be the same for all edges.
+Also, the scale drift parameter S is 1 for all vertices and edges EXCEPT for loop closing edges.
+This is simply because scale drift only becomes observable from long-term loop closures.
+
+
+****************************
+********* IMPORTANT ********
+****************************
+
+The main difference between cop-slam and g20, is that for cop-slam the 
+vertices MUST be in an online timely order. For example, consider a pose-chain
+of 100 vertices and 2 loops (one in the middle and one at the end),
+then the g2o file for COP-SLAM must look like:
+
+VERTEX_SE3:QUAT 0 ..... // vertices 0 to 99
+VERTEX_SE3:QUAT 1 .....
+....
+....
+VERTEX_SE3:QUAT 99 ..... 
+EDGE_SE3:QUAT 0 1 .... // successive edge
+EDGE_SE3:QUAT 1 2 ....
+....
+....
+EDGE_SE3:QUAT 49 50 ....
+EDGE_SE3:QUAT 50 0 .... // loop closing edge from vertex 50 back to vertex 0
+EDGE_SE3:QUAT 50 51....
+....
+....
+EDGE_SE3:QUAT 98 99 ....
+EDGE_SE3:QUAT 99 0 .... // loop closing edge from vertex 99 back to vertex 0
+
+The COP-SLAM demo program goes through the supplied edges sequentially, as if
+it were receiving these edges online from a visual odometry front-end.
+For the regular g2o optimizer, the edges do not necessarily have to be in
+an online timely order, but for COP-SLAM they always have to.
+
+
+******************************
+**                          **
+** License Information      **
+**                          **
+******************************
+This software is distributed under GPL v3 in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+The author allows the users of COP-SLAM to use and modify the source code for their own research. 
+Any commercial application, redistribution, etc has to be arranged between users and the author.
+
