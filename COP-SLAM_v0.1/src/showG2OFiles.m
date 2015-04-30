@@ -14,13 +14,14 @@ function [] = showG2OFiles()
     end    
 
     %% parse the file
-    [track1 loops1] = parseG2OFile( '../data/KITTI_00_cs.g2o' );
+    [track1 loops1]  = parseG2OFile( '../data/KITTI_00_cs.g2o' );
     [track2 loops2]  = parseG2OFile( '../data/KITTI_02_cs.g2o' );
     [track3 loops3]  = parseG2OFile( '../data/NewCollege_cs.g2o' );
     [track4 loops4]  = parseG2OFile( '../data/Pittsburgh_A_cs.g2o' );
     [track5 loops5]  = parseG2OFile( '../data/Pittsburgh_B_cs.g2o' );
     [track6 loops6]  = parseG2OFile( '../data/Pittsburgh_C_cs.g2o' );
     [track7 loops7]  = parseG2OFile( '../data/TheHague_02_cs.g2o' );
+    [track8 loops8]  = parseG2OFile( '../data/sphere_cs.g2o' );
     
     %% show the trajectory    
     figure(1)
@@ -94,6 +95,17 @@ function [] = showG2OFiles()
     hold on
     title('The Hague 2');
     plotTrack( track7, loops7  );
+    view(-50,30);
+    grid on
+    axis equal
+    legend('trajectory','loop closures','Location','NorthWest')
+    
+    %% show the trajectory    
+    figure(8)
+    clf
+    hold on
+    title('The Sphere');
+    plotTrack( track8, loops8  );
     view(-50,30);
     grid on
     axis equal
