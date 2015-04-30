@@ -1,22 +1,3 @@
-// This file is part of COP-SLAM, a highly efficient SLAM
-// back-end optimizer for pose-chains.
-//
-// Copyright (C) 2014 Gijs Dubbelman <gijsdubbelman@gmail.com>
-//
-// COP-SLAM is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation; either version 3 of
-// the License, or (at your option) any later version.
-//
-// COP-SLAM is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU General Public License
-// for more details.
-//
-// You should have received a copy of the GNU General Public
-// License. If not, see <http://www.gnu.org/licenses/>.
-
-
 
 #include <iostream>
 #include <fstream>
@@ -28,7 +9,7 @@
 #include <Eigen/Eigen>
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>
-
+#include <Eigen/Core>
 
 
 using namespace std;
@@ -74,6 +55,8 @@ class poseChain {
     
     
     // is true when solution space includes scaling
+    bool se3_solution_space;
+    bool rt3_solution_space;
     bool sim3_solution_space;
     bool ignore_sim3_solution_space;
     
@@ -120,9 +103,10 @@ class poseChain {
     Eigen::Vector3f interpolateMotion( Eigen::Affine3f adesired, Eigen::Affine3f aerror, const int aclosure, const int astart, const int aend ); // interpolate the update motion
     Eigen::Vector3f interpolateTra(    Eigen::Affine3f adesired, Eigen::Affine3f aerror, const int aclosure, const int astart, const int aend ); // interpolate the update tranlation
     Eigen::Vector3f interpolateRot(    Eigen::Affine3f adesired, Eigen::Affine3f aerror, const int aclosure, const int astart, const int aend ); // interpolate the update rotation
-    void integrateChain( const int astart, const int aend, const bool aidentity ); // (re-)compute absolute poses from relative poses   
-    void cobChain(       const int astart, const int aend, const int method ); // apply the change of basis to the updates 
-    void updateChain(    const int astart, const int aend, const int method ); // update the relative poses 
+    void integrateChain(           const int astart, const int aend, const bool aidentity ); // (re-)compute absolute poses from relative poses
+    void integrateChainNormalized( const int astart, const int aend, const bool normalize ); // (re-)compute absolute poses from relative poses
+    void cobChain(                 const int astart, const int aend, const int  method );    // apply the change of basis to the updates 
+    void updateChain(              const int astart, const int aend, const int  method );    // update the relative poses 
     
   private:
         
