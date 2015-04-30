@@ -8,3 +8,4 @@
 ./copslam ../data/Pittsburgh_A_vo.g2o ../data/Pittsburgh_A_cs.g2o
 ./copslam ../data/Pittsburgh_B_vo.g2o ../data/Pittsburgh_B_cs.g2o
 ./copslam ../data/Pittsburgh_C_vo.g2o ../data/Pittsburgh_C_cs.g2o
+./copslam ../data/sphere_vo.g2o       ../data/sphere_cs.g2o
